@@ -7,9 +7,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Get code
+      - &checkout
+        name: Get code
         uses: actions/checkout@v3
-      - name: Install dependencies
+      - &install
+        name: Install dependencies
         run: npm ci
       - name: Lint code
         run: npm run lint
@@ -19,12 +21,15 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Get code
-        uses: actions/checkout@v3
-      - name: Install dependencies
-        run: npm ci
+      - *checkout
+      - *install
       - name: Build website
         run: npm run build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: damonx-dist-files
+          path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
