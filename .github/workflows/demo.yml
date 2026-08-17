@@ -20,11 +20,16 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      script-file: ${{ steps.publish.outputs.script-file }}
     steps:
       - *checkout
       - *install
       - name: Build website
         run: npm run build
+      - name: Publish JS filename
+        id: publish
+        run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -40,5 +45,7 @@ jobs:
           name: damonx-dist-files
       - name: Output contents
         run: ls -al
+      - name: Output script file
+        run: echo "{{ needs.build.outputs.script-file }}"
       - name: Deploy
         run: echo "Deploying..."
